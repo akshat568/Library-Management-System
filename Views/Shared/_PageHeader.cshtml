@@ -1,0 +1,40 @@
+@* Reusable Page Header Component *@
+@{
+    var title = ViewData["Title"] ?? "Library Management";
+    var description = ViewData["HeaderDescription"] as string;
+    var icon = ViewData["HeaderIcon"] as string ?? "bi-grid";
+    var breadcrumbParent = ViewData["BreadcrumbParent"] as string;
+}
+
+<div class="page-header mb-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+        <div>
+            @if (!string.IsNullOrEmpty(breadcrumbParent))
+            {
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-2">
+                        <li class="breadcrumb-item">
+                            <a asp-controller="Home" asp-action="Index" class="text-decoration-none">
+                                <i class="bi bi-house-door me-1"></i>Home
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">@breadcrumbParent</li>
+                    </ol>
+                </nav>
+            }
+            
+            <div class="d-flex align-items-center gap-3">
+                <div class="page-header-icon-box">
+                    <i class="bi @icon"></i>
+                </div>
+                <div>
+                    <h1 class="h3 fw-bold text-dark mb-0">@title</h1>
+                    @if (!string.IsNullOrEmpty(description))
+                    {
+                        <p class="text-secondary small mb-0 mt-1">@description</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

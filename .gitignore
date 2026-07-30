@@ -1,0 +1,11 @@
+bin/
+obj/
+.vs/
+
+*.user
+*.suo
+
+Library.db-shm
+Library.db-wal
+
+node_modules/

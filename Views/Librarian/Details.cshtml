@@ -1,0 +1,52 @@
+@model LibraryManagement.Models.Librarian
+
+@{
+    ViewData["Title"] = "Librarian Details";
+    ViewData["HeaderDescription"] = "Detailed information for staff member.";
+    ViewData["HeaderIcon"] = "bi-person-vcard";
+    ViewData["BreadcrumbParent"] = "Librarians";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none"><i class="bi bi-house-door me-1"></i>Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Librarians</a></li>
+                <li class="breadcrumb-item active">Details</li>
+            </ol>
+        </nav>
+        <h1 class="h3 fw-bold text-dark mb-0">@Model.Name</h1>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.LibrarianId" class="btn btn-primary">
+            <i class="bi bi-pencil me-1"></i> Edit Librarian
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">Back to Librarians</a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header py-3">
+                <h2 class="h6 fw-bold mb-0">Staff Profile Overview</h2>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-sm-4 text-secondary">Librarian ID</div>
+                    <div class="col-sm-8 text-dark fw-bold">#@Model.LibrarianId</div>
+
+                    <div class="col-sm-4 text-secondary">Full Name</div>
+                    <div class="col-sm-8 text-dark">@Model.Name</div>
+
+                    <div class="col-sm-4 text-secondary">Age</div>
+                    <div class="col-sm-8 text-dark">@Model.Age years</div>
+
+                    <div class="col-sm-4 text-secondary">Phone Number</div>
+                    <div class="col-sm-8 text-dark">@Model.Phone</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

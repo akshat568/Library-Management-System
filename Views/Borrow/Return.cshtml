@@ -1,0 +1,58 @@
+@model LibraryManagement.Models.BorrowRecord
+
+@{
+    ViewData["Title"] = "Return Book";
+    ViewData["HeaderDescription"] = "Confirm return of a borrowed library book.";
+    ViewData["HeaderIcon"] = "bi-box-arrow-in-down-left";
+    ViewData["BreadcrumbParent"] = "Books";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none"><i class="bi bi-house-door me-1"></i>Home</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Books" asp-action="Index" class="text-decoration-none">Books</a></li>
+                <li class="breadcrumb-item active">Return</li>
+            </ol>
+        </nav>
+        <h1 class="h3 fw-bold text-dark mb-0">Return Book Confirmation</h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-success border-opacity-25">
+            <div class="card-header bg-success text-white py-3">
+                <h2 class="h6 fw-bold mb-0"><i class="bi bi-check-circle me-1"></i> Return Book Confirmation</h2>
+            </div>
+            <div class="card-body">
+                <p class="text-secondary mb-4">
+                    Please confirm that the following borrowed book is being returned to the inventory.
+                </p>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-4 text-secondary">Book Title</div>
+                    <div class="col-sm-8 text-dark fw-bold">@Model.Book?.Title</div>
+
+                    <div class="col-sm-4 text-secondary">Borrower Name</div>
+                    <div class="col-sm-8 text-dark">@Model.BorrowerName</div>
+
+                    <div class="col-sm-4 text-secondary">Borrower Email</div>
+                    <div class="col-sm-8 text-dark">@Model.BorrowerEmail</div>
+
+                    <div class="col-sm-4 text-secondary">Borrow Date</div>
+                    <div class="col-sm-8 text-dark">@Model.BorrowDate.ToString("yyyy-MM-dd HH:mm")</div>
+                </div>
+
+                <form asp-action="ReturnConfirmed" method="post" class="d-flex align-items-center gap-2 pt-3 border-top">
+                    <input type="hidden" name="borrowRecordId" value="@Model.BorrowRecordId" />
+                    <button type="submit" class="btn btn-success fw-semibold">
+                        <i class="bi bi-box-arrow-in-down-left me-1"></i> Confirm Return
+                    </button>
+                    <a asp-controller="Books" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

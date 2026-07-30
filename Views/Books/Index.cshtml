@@ -1,0 +1,195 @@
+@model LibraryManagement.Models.BookListViewModel
+
+@{
+    ViewData["Title"] = "Book Management";
+    ViewData["HeaderDescription"] = "Browse, search, and manage all books registered in the library inventory.";
+    ViewData["HeaderIcon"] = "bi-bookshelf";
+    ViewData["BreadcrumbParent"] = "Books";
+}
+
+<!-- Partial Alerts Component -->
+<partial name="_Alerts" />
+
+<!-- Page Header -->
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none"><i class="bi bi-house-door me-1"></i>Home</a></li>
+                <li class="breadcrumb-item active">Books</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-3">
+            <div class="page-header-icon-box">
+                <i class="bi bi-bookshelf"></i>
+            </div>
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-0">Book Management</h1>
+                <p class="text-secondary small mb-0 mt-1">Browse, search, and manage all books in the library inventory.</p>
+            </div>
+        </div>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary fw-semibold">
+            <i class="bi bi-plus-lg me-1"></i> Add New Book
+        </a>
+    </div>
+</div>
+
+<!-- Search Toolbar -->
+<div class="card mb-4">
+    <div class="card-body py-3">
+        <form asp-action="Index" method="get" class="row g-2 align-items-center">
+            <div class="col-md-8 col-lg-9">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search text-secondary"></i></span>
+                    <input type="text" name="searchQuery" value="@Model.SearchQuery" class="form-control border-start-0 ps-0" placeholder="Search by title, author or ISBN..." autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1">Search</button>
+                @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results Meta Bar -->
+<div class="d-flex align-items-center justify-content-between mb-3 text-secondary small">
+    <div>
+        @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
+        {
+            <span>Showing results for "<strong>@Model.SearchQuery</strong>"</span>
+        }
+        else
+        {
+            <span>Showing all catalog books</span>
+        }
+    </div>
+    <div class="fw-medium text-dark">Total Items: @Model.TotalItems</div>
+</div>
+
+<!-- Books Table -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>ISBN</th>
+                <th>Published Date</th>
+                <th>Status</th>
+                <th class="text-end" style="min-width: 220px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Books != null && Model.Books.Any())
+            {
+                @foreach (var book in Model.Books)
+                {
+                    if (book == null) continue;
+                    var activeBorrowRecord = book.BorrowRecords?.FirstOrDefault(br => br != null && br.ReturnDate == null);
+
+                    <tr>
+                        <td>
+                            <div class="fw-semibold text-dark">@(book.Title ?? "Untitled")</div>
+                        </td>
+                        <td class="text-secondary">@(book.Author ?? "-")</td>
+                        <td><code class="text-dark">@(book.ISBN ?? "-")</code></td>
+                        <td class="text-secondary small">@book.PublishedDate.ToString("yyyy-MM-dd")</td>
+                        <td>
+                            @if (book.IsAvailable)
+                            {
+                                <span class="badge-status available">
+                                    <span class="status-dot"></span> Available
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge-status borrowed">
+                                    <span class="status-dot"></span> Borrowed
+                                </span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <div class="action-btn-group justify-content-end">
+                                @if (book.IsAvailable)
+                                {
+                                    <a asp-controller="Borrow" asp-action="Create" asp-route-bookId="@book.BookId" class="btn btn-sm btn-outline-primary" title="Borrow Book">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i> Borrow
+                                    </a>
+                                }
+                                else
+                                {
+                                    if (activeBorrowRecord != null)
+                                    {
+                                        <a asp-controller="Borrow" asp-action="Return" asp-route-borrowRecordId="@activeBorrowRecord.BorrowRecordId" class="btn btn-sm btn-outline-success" title="Return Book">
+                                            <i class="bi bi-box-arrow-in-down-left me-1"></i> Return
+                                        </a>
+                                    }
+                                }
+                                <a asp-action="Details" asp-route-id="@book.BookId" class="btn btn-sm btn-outline-secondary btn-icon" title="View details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@book.BookId" class="btn btn-sm btn-outline-secondary btn-icon" title="Edit book">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@book.BookId" class="btn btn-sm btn-outline-danger btn-icon" title="Delete book">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i class="bi bi-journal-x"></i></div>
+                            <div class="empty-state-title">No books found</div>
+                            @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
+                            {
+                                <p class="empty-state-description">No books matched your search query "<strong>@Model.SearchQuery</strong>".</p>
+                                <a asp-action="Index" class="btn btn-sm btn-outline-primary">Show All Books</a>
+                            }
+                            else
+                            {
+                                <p class="empty-state-description">Your library collection is empty. Click below to add a book.</p>
+                                <a asp-action="Create" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg me-1"></i> Add Book</a>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+@if (Model.TotalPages > 1)
+{
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center mt-4 gap-2">
+        <div class="text-secondary small">Page <strong>@Model.CurrentPage</strong> of <strong>@Model.TotalPages</strong></div>
+        <nav aria-label="Book pagination">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage - 1)" asp-route-searchQuery="@Model.SearchQuery">Previous</a>
+                </li>
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(Model.CurrentPage == i ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchQuery="@Model.SearchQuery">@i</a>
+                    </li>
+                }
+                <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage + 1)" asp-route-searchQuery="@Model.SearchQuery">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+}

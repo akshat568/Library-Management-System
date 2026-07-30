@@ -1,0 +1,115 @@
+@model IEnumerable<ProductAdmin.Models.Product>
+
+@{
+    ViewData["Title"] = "Products";
+    ViewData["HeaderDescription"] = "Manage extra inventory products and equipment catalog.";
+    ViewData["HeaderIcon"] = "bi-box-seam";
+    ViewData["BreadcrumbParent"] = "Products";
+}
+
+<!-- Partial Alerts Component -->
+<partial name="_Alerts" />
+
+<!-- Page Header -->
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none"><i class="bi bi-house-door me-1"></i>Home</a></li>
+                <li class="breadcrumb-item active">Products</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-3">
+            <div class="page-header-icon-box">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-0">Product Management</h1>
+                <p class="text-secondary small mb-0 mt-1">Manage extra inventory items and auxiliary equipment.</p>
+            </div>
+        </div>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary fw-semibold">
+            <i class="bi bi-plus-lg me-1"></i> Add Product
+        </a>
+    </div>
+</div>
+
+<!-- Products Table -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Item Image</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Freshness</th>
+                <th>Price</th>
+                <th>MRP</th>
+                <th>Manager Contact</th>
+                <th class="text-end" style="min-width: 160px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-secondary small">#@item.Id</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.ImagePath))
+                            {
+                                <img src="@item.ImagePath" alt="@item.ProductName" width="48" height="48" class="rounded border object-fit-cover" />
+                            }
+                            else
+                            {
+                                <div class="stat-icon-wrapper primary" style="width:48px; height:48px;"><i class="bi bi-image"></i></div>
+                            }
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-dark">@item.ProductName</div>
+                            <small class="text-secondary text-truncate d-block" style="max-width: 200px;">@item.AdditionalDescription</small>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">@item.ProductCategory</span></td>
+                        <td><span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">@item.ProductFreshness</span></td>
+                        <td class="fw-semibold text-dark">$@item.ProductPrice.ToString("0.00")</td>
+                        <td class="text-secondary small"><del>$@item.MRP.ToString("0.00")</del></td>
+                        <td class="small text-secondary">
+                            <div><i class="bi bi-envelope me-1"></i>@item.ManagerEmail</div>
+                            <div><i class="bi bi-telephone me-1"></i>@item.ManagerPhoneNumber</div>
+                        </td>
+                        <td class="text-end">
+                            <div class="action-btn-group justify-content-end">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary btn-icon" title="View details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary btn-icon" title="Edit item">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger btn-icon" title="Delete item">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="9">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i class="bi bi-box"></i></div>
+                            <div class="empty-state-title">No products found</div>
+                            <p class="empty-state-description">Your product catalog is empty. Click below to add a new item.</p>
+                            <a asp-action="Create" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg me-1"></i> Add Product</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

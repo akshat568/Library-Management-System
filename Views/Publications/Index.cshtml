@@ -1,0 +1,182 @@
+@model LibraryManagement.Models.PublicationIndexViewModel
+
+@{
+    string currentType = Model.Type.ToString();
+    ViewData["Title"] = currentType + " Management";
+    ViewData["HeaderDescription"] = "Manage library " + currentType.ToLower() + " catalog records.";
+    ViewData["HeaderIcon"] = currentType == "Newspaper" ? "bi-newspaper" : "bi-journal-bookmark";
+    ViewData["BreadcrumbParent"] = currentType;
+}
+
+<!-- Partial Alerts Component -->
+<partial name="_Alerts" />
+
+<!-- Page Header -->
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none"><i class="bi bi-house-door me-1"></i>Home</a></li>
+                <li class="breadcrumb-item active">@currentType</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-3">
+            <div class="page-header-icon-box">
+                <i class="bi @(currentType == "Newspaper" ? "bi-newspaper" : "bi-journal-bookmark")"></i>
+            </div>
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-0">@currentType Management</h1>
+                <p class="text-secondary small mb-0 mt-1">Manage library @currentType.ToLower() inventory.</p>
+            </div>
+        </div>
+    </div>
+    <div>
+        <a asp-action="Create" asp-route-type="@currentType" class="btn btn-primary fw-semibold">
+            <i class="bi bi-plus-lg me-1"></i> Add New @currentType
+        </a>
+    </div>
+</div>
+
+<!-- Search Toolbar -->
+<div class="card mb-4">
+    <div class="card-body py-3">
+        <form asp-action="Index" method="get" class="row g-2 align-items-center">
+            <input type="hidden" name="type" value="@currentType" />
+            <div class="col-md-8 col-lg-9">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search text-secondary"></i></span>
+                    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control border-start-0 ps-0" placeholder="Search by title or publisher..." autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1">Search</button>
+                @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+                {
+                    <a asp-action="Index" asp-route-type="@currentType" class="btn btn-outline-secondary">Clear</a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Meta Info -->
+<div class="d-flex align-items-center justify-content-between mb-3 text-secondary small">
+    <div>
+        @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+        {
+            <span>Search results for "<strong>@Model.SearchTerm</strong>"</span>
+        }
+        else
+        {
+            <span>Showing all @currentType.ToLower() records</span>
+        }
+    </div>
+    <div class="fw-medium text-dark">Total Records: @Model.TotalItems</div>
+</div>
+
+<!-- Table -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Publisher</th>
+                <th>Published Date</th>
+                <th>Status</th>
+                <th class="text-end" style="min-width: 180px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Publications != null && Model.Publications.Any())
+            {
+                @foreach (var item in Model.Publications)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="stat-icon-wrapper warning" style="width:32px; height:32px; font-size:0.9rem;">
+                                    <i class="bi @(currentType == "Newspaper" ? "bi-newspaper" : "bi-journal-bookmark")"></i>
+                                </div>
+                                <div class="fw-semibold text-dark">@item.Title</div>
+                            </div>
+                        </td>
+                        <td class="text-secondary">@item.Publisher</td>
+                        <td class="text-secondary small">@item.PublishedDate.ToString("yyyy-MM-dd")</td>
+                        <td>
+                            @if (item.IsAvailable)
+                            {
+                                <span class="badge-status available">
+                                    <span class="status-dot"></span> Available
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge-status borrowed">
+                                    <span class="status-dot"></span> Checked Out
+                                </span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <div class="action-btn-group justify-content-end">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary btn-icon" title="Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary btn-icon" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger btn-icon" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i class="bi @(currentType == "Newspaper" ? "bi-newspaper" : "bi-journal-bookmark")"></i></div>
+                            <div class="empty-state-title">No @currentType.ToLower() records found</div>
+                            @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+                            {
+                                <p class="empty-state-description">No @currentType.ToLower() matched "<strong>@Model.SearchTerm</strong>".</p>
+                                <a asp-action="Index" asp-route-type="@currentType" class="btn btn-sm btn-outline-primary">Show All Records</a>
+                            }
+                            else
+                            {
+                                <p class="empty-state-description">No @currentType.ToLower() items in stock. Click below to add one.</p>
+                                <a asp-action="Create" asp-route-type="@currentType" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg me-1"></i> Add @currentType</a>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+@if (Model.TotalPages > 1)
+{
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center mt-4 gap-2">
+        <div class="text-secondary small">Page <strong>@Model.CurrentPage</strong> of <strong>@Model.TotalPages</strong></div>
+        <nav aria-label="Publication pagination">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-type="@currentType" asp-route-page="@(Model.CurrentPage - 1)" asp-route-searchTerm="@Model.SearchTerm">Previous</a>
+                </li>
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(Model.CurrentPage == i ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-type="@currentType" asp-route-page="@i" asp-route-searchTerm="@Model.SearchTerm">@i</a>
+                    </li>
+                }
+                <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-type="@currentType" asp-route-page="@(Model.CurrentPage + 1)" asp-route-searchTerm="@Model.SearchTerm">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+}

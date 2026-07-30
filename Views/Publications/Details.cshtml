@@ -1,0 +1,72 @@
+@model LibraryManagement.Models.Publication
+
+@{
+    string currentType = Model.Type.ToString();
+    ViewData["Title"] = currentType + " Details";
+    ViewData["HeaderDescription"] = "Overview of " + currentType.ToLower() + " record.";
+    ViewData["HeaderIcon"] = currentType == "Newspaper" ? "bi-newspaper" : "bi-journal-bookmark";
+    ViewData["BreadcrumbParent"] = currentType;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none"><i class="bi bi-house-door me-1"></i>Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index" asp-route-type="@currentType" class="text-decoration-none">@currentType</a></li>
+                <li class="breadcrumb-item active">Details</li>
+            </ol>
+        </nav>
+        <h1 class="h3 fw-bold text-dark mb-0">@Model.Title</h1>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+            <i class="bi bi-pencil me-1"></i> Edit @currentType
+        </a>
+        <a asp-action="Index" asp-route-type="@currentType" class="btn btn-outline-secondary">Back to @currentType</a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header py-3">
+                <h2 class="h6 fw-bold mb-0">Publication Summary</h2>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-sm-4 text-secondary">Record ID</div>
+                    <div class="col-sm-8 text-dark fw-bold">#@Model.Id</div>
+
+                    <div class="col-sm-4 text-secondary">Title</div>
+                    <div class="col-sm-8 text-dark">@Model.Title</div>
+
+                    <div class="col-sm-4 text-secondary">Publisher</div>
+                    <div class="col-sm-8 text-dark">@Model.Publisher</div>
+
+                    <div class="col-sm-4 text-secondary">Published Date</div>
+                    <div class="col-sm-8 text-dark">@Model.PublishedDate.ToString("dd MMMM yyyy")</div>
+
+                    <div class="col-sm-4 text-secondary">Type</div>
+                    <div class="col-sm-8"><span class="badge bg-secondary">@Model.Type</span></div>
+
+                    <div class="col-sm-4 text-secondary">Availability</div>
+                    <div class="col-sm-8">
+                        @if (Model.IsAvailable)
+                        {
+                            <span class="badge-status available">
+                                <span class="status-dot"></span> Available
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge-status borrowed">
+                                <span class="status-dot"></span> Checked Out
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

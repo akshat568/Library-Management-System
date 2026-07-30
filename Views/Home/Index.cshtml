@@ -1,0 +1,331 @@
+@model LibraryManagement.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    ViewData["HeaderDescription"] = "Manage books, students, librarians, publications, and borrowing activity.";
+    ViewData["HeaderIcon"] = "bi-grid-1x2";
+}
+
+<!-- Partial Alerts Component -->
+<partial name="_Alerts" />
+
+<!-- Page Header -->
+<partial name="_PageHeader" />
+
+<!-- Primary Statistics Grid -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="Books" asp-action="Index" class="text-decoration-none">
+            <div class="stat-card card-hover">
+                <div class="stat-icon-wrapper primary">
+                    <i class="bi bi-book"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@Model.TotalBooks</div>
+                    <div class="stat-label">Total Books</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon-wrapper success">
+                <i class="bi bi-check2-circle"></i>
+            </div>
+            <div>
+                <div class="stat-value">@Model.AvailableBooks</div>
+                <div class="stat-label">Available</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon-wrapper warning">
+                <i class="bi bi-box-arrow-up-right"></i>
+            </div>
+            <div>
+                <div class="stat-value">@Model.BorrowedBooks</div>
+                <div class="stat-label">Borrowed</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon-wrapper info">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <div>
+                <div class="stat-value">@Model.TotalBorrowRecords</div>
+                <div class="stat-label">Borrow Records</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Statistics Grid -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="Student" asp-action="Index" class="text-decoration-none">
+            <div class="stat-card card-hover">
+                <div class="stat-icon-wrapper primary">
+                    <i class="bi bi-mortarboard"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@Model.TotalStudents</div>
+                    <div class="stat-label">Students</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="Librarian" asp-action="Index" class="text-decoration-none">
+            <div class="stat-card card-hover">
+                <div class="stat-icon-wrapper success">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@Model.TotalLibrarians</div>
+                    <div class="stat-label">Librarians</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="Publications" asp-action="Index" asp-route-type="Newspaper" class="text-decoration-none">
+            <div class="stat-card card-hover">
+                <div class="stat-icon-wrapper warning">
+                    <i class="bi bi-newspaper"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@Model.TotalNewspapers</div>
+                    <div class="stat-label">Newspapers</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="Publications" asp-action="Index" asp-route-type="Magazine" class="text-decoration-none">
+            <div class="stat-card card-hover">
+                <div class="stat-icon-wrapper info">
+                    <i class="bi bi-journal-richtext"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@Model.TotalMagazines</div>
+                    <div class="stat-label">Magazines</div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Main Dashboard Widgets -->
+<div class="row g-4 mb-4">
+    <!-- Left Column: Book Inventory -->
+    <div class="col-xl-8">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                    <h2 class="h6 fw-bold mb-0">Book Inventory</h2>
+                    <small class="text-secondary">Recent additions and availability status</small>
+                </div>
+                <a asp-controller="Books" asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                    View All <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+
+            <!-- Instant Search Box -->
+            <div class="p-3 border-bottom bg-light">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search text-secondary"></i></span>
+                    <input type="text" id="dashboardBookSearch" class="form-control" placeholder="Search recent books by title, author or ISBN..." autocomplete="off" />
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="dashboardBooksTable">
+                    <thead>
+                        <tr>
+                            <th>Book Details</th>
+                            <th>ISBN</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.RecentBooks != null && Model.RecentBooks.Any())
+                        {
+                            @foreach (var book in Model.RecentBooks)
+                            {
+                                <tr class="book-row" data-search="@($"{book.Title} {book.Author} {book.ISBN}".ToLower())">
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="stat-icon-wrapper primary" style="width:36px; height:36px; font-size:1rem;">
+                                                <i class="bi bi-book"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold text-dark">@book.Title</div>
+                                                <small class="text-secondary">by @book.Author</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="text-secondary small">@book.ISBN</span></td>
+                                    <td>
+                                        @if (book.IsAvailable)
+                                        {
+                                            <span class="badge-status available">
+                                                <span class="status-dot"></span> Available
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge-status borrowed">
+                                                <span class="status-dot"></span> Borrowed
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="action-btn-group justify-content-end">
+                                            @if (book.IsAvailable)
+                                            {
+                                                <a asp-controller="Borrow" asp-action="Create" asp-route-bookId="@book.BookId" class="btn btn-sm btn-outline-primary btn-icon" title="Borrow book">
+                                                    <i class="bi bi-box-arrow-up-right"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                var activeRecord = Model.ActiveBorrows?.FirstOrDefault(r => r.BookId == book.BookId);
+                                                if (activeRecord != null)
+                                                {
+                                                    <a asp-controller="Borrow" asp-action="Return" asp-route-borrowRecordId="@activeRecord.BorrowRecordId" class="btn btn-sm btn-outline-success btn-icon" title="Return book">
+                                                        <i class="bi bi-box-arrow-in-down-left"></i>
+                                                    </a>
+                                                }
+                                            }
+                                            <a asp-controller="Books" asp-action="Edit" asp-route-id="@book.BookId" class="btn btn-sm btn-outline-secondary btn-icon" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a asp-controller="Books" asp-action="Details" asp-route-id="@book.BookId" class="btn btn-sm btn-outline-secondary btn-icon" title="Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon"><i class="bi bi-journal-x"></i></div>
+                                        <div class="empty-state-title">No books in inventory</div>
+                                        <p class="empty-state-description">Get started by adding your first book to the collection.</p>
+                                        <a asp-controller="Books" asp-action="Create" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-plus-lg me-1"></i> Add Book
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="noSearchResults" class="empty-state d-none">
+                <div class="empty-state-icon"><i class="bi bi-search"></i></div>
+                <div class="empty-state-title">No matching books</div>
+                <p class="empty-state-description">Try adjusting your search terms.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Inventory Health & Quick Actions -->
+    <div class="col-xl-4">
+        <!-- Inventory Health Widget -->
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between py-3">
+                <h2 class="h6 fw-bold mb-0">Inventory Health</h2>
+                <i class="bi bi-activity text-primary"></i>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-baseline justify-content-between mb-2">
+                    <span class="fs-3 fw-bold text-dark">@Model.AvailabilityPercentage%</span>
+                    <span class="text-secondary small">Available</span>
+                </div>
+                <div class="progress mb-3" style="height: 8px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: @Model.AvailabilityPercentage%" aria-valuenow="@Model.AvailabilityPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="d-flex justify-content-between small text-secondary">
+                    <div><span class="status-dot bg-success me-1"></span>Available: <strong>@Model.AvailableBooks</strong></div>
+                    <div><span class="status-dot bg-warning me-1"></span>Borrowed: <strong>@Model.BorrowedBooks</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Panel -->
+        <div class="card">
+            <div class="card-header py-3">
+                <h2 class="h6 fw-bold mb-0">Quick Management Actions</h2>
+            </div>
+            <div class="list-group list-group-flush">
+                <a asp-controller="Books" asp-action="Create" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
+                    <div class="stat-icon-wrapper primary" style="width:36px; height:36px; font-size:1rem;"><i class="bi bi-plus-lg"></i></div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold text-dark small">Add New Book</div>
+                        <small class="text-secondary">Register a title in inventory</small>
+                    </div>
+                    <i class="bi bi-chevron-right text-muted small"></i>
+                </a>
+                <a asp-controller="Student" asp-action="Create" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
+                    <div class="stat-icon-wrapper success" style="width:36px; height:36px; font-size:1rem;"><i class="bi bi-person-plus"></i></div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold text-dark small">Add New Student</div>
+                        <small class="text-secondary">Register student borrowing account</small>
+                    </div>
+                    <i class="bi bi-chevron-right text-muted small"></i>
+                </a>
+                <a asp-controller="Librarian" asp-action="Create" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
+                    <div class="stat-icon-wrapper info" style="width:36px; height:36px; font-size:1rem;"><i class="bi bi-person-badge"></i></div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold text-dark small">Add Librarian</div>
+                        <small class="text-secondary">Register library administrator</small>
+                    </div>
+                    <i class="bi bi-chevron-right text-muted small"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#dashboardBookSearch').on('keyup', function () {
+                var value = $(this).val().toLowerCase().trim();
+                var visibleCount = 0;
+
+                $('.book-row').each(function () {
+                    var searchData = $(this).attr('data-search') || '';
+                    if (searchData.indexOf(value) > -1) {
+                        $(this).removeClass('d-none');
+                        visibleCount++;
+                    } else {
+                        $(this).addClass('d-none');
+                    }
+                });
+
+                if (visibleCount === 0 && value !== '') {
+                    $('#noSearchResults').removeClass('d-none');
+                } else {
+                    $('#noSearchResults').addClass('d-none');
+                }
+            });
+        });
+    </script>
+}
