@@ -8,10 +8,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-// Email:    admin@library.com
-// Password: Admin@123
-
-
 builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseSqlite(
         builder.Configuration.GetConnectionString("DefaultConnection")

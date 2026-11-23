@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-ProductAdmin-e7c653bc-4b92-491c-a94f-2d6a71bb8021</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
